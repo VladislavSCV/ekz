@@ -1,0 +1,51 @@
+package middleware
+
+import (
+	"strings"
+
+	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
+
+	"{{.ProjectSlug}}/backend/internal/models"
+)
+
+const userKey = "user"
+
+func RequireAuth(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		u, err := userFromToken(c, db)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "требуется авторизация"})
+		}
+		c.Locals(userKey, u)
+		return c.Next()
+	}
+}
+
+func RequireAdmin() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		u, ok := c.Locals(userKey).(models.User)
+		if !ok || !u.IsAdmin {
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "доступ только для администратора"})
+		}
+		return c.Next()
+	}
+}
+
+func User(c *fiber.Ctx) (models.User, bool) {
+	u, ok := c.Locals(userKey).(models.User)
+	return u, ok
+}
+
+func userFromToken(c *fiber.Ctx, db *gorm.DB) (models.User, error) {
+	auth := c.Get("Authorization")
+	if auth == "" {
+		return models.User{}, fiber.ErrUnauthorized
+	}
+	token := strings.TrimPrefix(auth, "Bearer ")
+	var user models.User
+	if err := db.First(&user, "id = ?", token).Error; err != nil {
+		return models.User{}, err
+	}
+	return user, nil
+}

@@ -1,0 +1,16 @@
+package database
+
+import (
+	"github.com/glebarez/sqlite"
+	"gorm.io/gorm"
+
+	"{{.ProjectSlug}}/backend/internal/models"
+)
+
+func Connect(path string) (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	return db, db.AutoMigrate(&models.User{}, &models.Booking{}, &models.Review{})
+}

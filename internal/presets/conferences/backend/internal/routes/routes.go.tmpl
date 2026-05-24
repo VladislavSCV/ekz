@@ -1,0 +1,27 @@
+package routes
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
+
+	"{{.ProjectSlug}}/backend/internal/handlers"
+	"{{.ProjectSlug}}/backend/internal/middleware"
+)
+
+func Register(app *fiber.App, db *gorm.DB) {
+	h := &handlers.Handlers{DB: db}
+
+	api := app.Group("/api")
+	api.Post("/register", h.Register)
+	api.Post("/login", h.Login)
+
+	auth := api.Group("", middleware.RequireAuth(db))
+	auth.Get("/me", h.Me)
+	auth.Post("/bookings", h.CreateBooking)
+	auth.Get("/bookings/my", h.MyBookings)
+	auth.Post("/reviews", h.CreateReview)
+
+	admin := api.Group("/admin", middleware.RequireAuth(db), middleware.RequireAdmin())
+	admin.Get("/bookings", h.AdminBookings)
+	admin.Patch("/bookings/:id/status", h.UpdateBookingStatus)
+}

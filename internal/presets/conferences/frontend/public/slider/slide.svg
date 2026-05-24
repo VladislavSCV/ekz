@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a5fb4"/>
+      <stop offset="100%" style="stop-color:#0d3d7a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#g)"/>
+  <text x="400" y="210" text-anchor="middle" fill="#fff" font-family="Segoe UI,sans-serif" font-size="42" font-weight="600">>=D5@5=F88. $</text>
+  <text x="400" y="260" text-anchor="middle" fill="#dbeafe" font-family="Segoe UI,sans-serif" font-size="20">;>I04:8 4;O 20H8E <5@>?@8OB89</text>
+</svg>

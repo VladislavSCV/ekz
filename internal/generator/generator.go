@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/template"
 
-	"ekz/internal/presets"
+	"github.com/VladislavSCV/ekz/internal/presets"
 )
 
 type fileData struct {

@@ -2,12 +2,20 @@
 
 CLI-утилита для развёртывания готовых Fullstack-проектов демонстрационного экзамена.
 
-## Сборка и запуск генератора
+## Установка
 
 ```bash
+go install github.com/VladislavSCV/ekz@latest
+```
+
+Бинарник появится в `$GOPATH/bin` или `$HOME/go/bin` (добавьте каталог в `PATH`, если команда `ekz` не находится).
+
+## Сборка из исходников
+
+```bash
+git clone https://github.com/VladislavSCV/ekz.git
 cd ekz
-go mod tidy
-go build -o ekz.exe .
+go build -o ekz .
 ```
 
 Интерактивный режим:

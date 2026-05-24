@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"ekz/internal/cli"
+	"github.com/VladislavSCV/ekz/internal/cli"
 )
 
 func main() {

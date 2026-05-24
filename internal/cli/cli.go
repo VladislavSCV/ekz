@@ -9,8 +9,8 @@ import (
 
 	"github.com/AlecAivazis/survey/v2"
 
-	"ekz/internal/generator"
-	"ekz/internal/presets"
+	"github.com/VladislavSCV/ekz/internal/generator"
+	"github.com/VladislavSCV/ekz/internal/presets"
 )
 
 func Run() error {

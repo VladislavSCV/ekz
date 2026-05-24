@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -20,6 +21,8 @@ func Run(args []string) error {
 			return listThemes()
 		case "presets":
 			return listPresets()
+		case "schema":
+			return schemaCmd(args[1:])
 		case "theme":
 			return themeCmd(args[1:])
 		case "help", "-h", "--help":
@@ -30,27 +33,14 @@ func Run(args []string) error {
 	return runGenerate()
 }
 
-func printHelp() {
-	fmt.Println(`ekz — универсальный генератор проектов ДЭ (09.02.07)
-
-  ekz                              мастер: столбцы БД, страницы, статусы
-  ekz presets                      список встроенных шаблонов (project.yaml)
-  ekz -name proj -config project.yaml
-  ekz -name proj -preset food-delivery         быстрый шаблон (без -quick)
-  ekz -name proj -quick -preset food-delivery
-  ekz -name proj -quick -theme conferences   (устар.)
-  ekz themes | ekz theme init
-
-Схема: вы описываете project.yaml → ekz генерирует SQLite/GORM, API и Vite-страницы.
-Не «любые 20 таблиц», а надёжный каркас типового билета.`)
-}
-
 func listPresets() error {
-	fmt.Println("Встроенные шаблоны (-quick -preset <id>):")
+	fmt.Println("Встроенные шаблоны (id для -preset и schema export):")
 	for _, p := range config.ListBuiltinPresets() {
 		fmt.Printf("  • %-16s %s — %s\n", p.ID, p.Title, p.Description)
 	}
-	fmt.Println("\nУниверсально: ekz  →  «Свой билет с нуля» или шаблон + правка полей")
+	fmt.Println("\n  ekz -name proj -preset conferences")
+	fmt.Println("  ekz schema export conferences")
+	fmt.Println("  ekz help")
 	return nil
 }
 
@@ -115,6 +105,9 @@ func runGenerate() error {
 		schema, err = loadQuickSchema(*flagName, *flagPreset, *flagTheme, *flagThemeFile)
 	default:
 		schema, err = wizard.Run()
+	}
+	if errors.Is(err, wizard.ErrSchemaOnly) {
+		return nil
 	}
 	if err != nil {
 		return err

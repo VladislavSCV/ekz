@@ -1,6 +1,7 @@
 package wizard
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -9,17 +10,22 @@ import (
 	"github.com/VladislavSCV/ekz/internal/config"
 )
 
+// ErrSchemaOnly — мастер выгрузил YAML, генерация кода не нужна.
+var ErrSchemaOnly = errors.New("project.yaml сохранён")
+
 // Run — интерактивный мастер: шаблон, свой билет или project.yaml.
 func Run() (config.ProjectSchema, error) {
 	fmt.Println("\n─── Как собрать проект? ───")
 	fmt.Println("На экзамене почти всегда: users + одна бизнес-таблица + опционально отзывы.")
-	fmt.Println("Вы задаёте столбцы и страницы — ekz генерирует БД, API и фронт из project.yaml.\n")
+	fmt.Println("Вы задаёте столбцы и страницы — ekz генерирует БД, API и фронт из project.yaml.")
+	fmt.Println("Управление: ↑↓ и Enter (как в меню).\n")
 
 	opts := []string{
 		"Свой билет с нуля (любая тема: доставка, отель, курсы…)",
 		"Шаблон: доставка еды",
 		"Шаблон: Конференции.РФ",
 		"Продолжить из project.yaml",
+		"Только project.yaml — без генерации кода",
 	}
 	var choice string
 	if err := survey.AskOne(&survey.Select{
@@ -37,9 +43,38 @@ func Run() (config.ProjectSchema, error) {
 		return runFromBuiltin("conferences")
 	case opts[3]:
 		return runFromYAMLFile()
+	case opts[4]:
+		return runSchemaOnly()
 	default:
 		return runCustom()
 	}
+}
+
+func runSchemaOnly() (config.ProjectSchema, error) {
+	sub := []string{
+		"Пустой пример (ekz schema init)",
+		"Шаблон: conferences",
+		"Шаблон: food-delivery",
+	}
+	var pick string
+	if err := survey.AskOne(&survey.Select{Message: "Что выгрузить в YAML?", Options: sub}, &pick); err != nil {
+		return config.ProjectSchema{}, err
+	}
+	var path string
+	_ = survey.AskOne(&survey.Input{Message: "Имя файла:", Default: "project.yaml"}, &path)
+	var err error
+	switch pick {
+	case sub[0]:
+		err = config.WriteSchemaTemplate(path)
+	case sub[1]:
+		err = config.ExportBuiltinPreset("conferences", path)
+	default:
+		err = config.ExportBuiltinPreset("food-delivery", path)
+	}
+	if err != nil {
+		return config.ProjectSchema{}, err
+	}
+	return config.ProjectSchema{}, ErrSchemaOnly
 }
 
 func runFromYAMLFile() (config.ProjectSchema, error) {

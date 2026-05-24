@@ -1,4 +1,4 @@
-module ekz
+module github.com/VladislavSCV/ekz
 
 go 1.22
 

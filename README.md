@@ -7,7 +7,11 @@
 ## Установка
 
 ```bash
-go install github.com/VladislavSCV/ekz@latest
+# @latest = тег v0.0.1 (старая версия). Нужна новая:
+go install github.com/VladislavSCV/ekz@main
+
+# или после тега v0.1.0:
+go install github.com/VladislavSCV/ekz@v0.1.0
 ```
 
 ## Режимы

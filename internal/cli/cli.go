@@ -36,8 +36,9 @@ func printHelp() {
   ekz                              мастер: столбцы БД, страницы, статусы
   ekz presets                      список встроенных шаблонов (project.yaml)
   ekz -name proj -config project.yaml
+  ekz -name proj -preset food-delivery         быстрый шаблон (без -quick)
   ekz -name proj -quick -preset food-delivery
-  ekz -name proj -quick -theme conferences   (то же, устаревший флаг -theme)
+  ekz -name proj -quick -theme conferences   (устар.)
   ekz themes | ekz theme init
 
 Схема: вы описываете project.yaml → ekz генерирует SQLite/GORM, API и Vite-страницы.
@@ -85,7 +86,7 @@ func runGenerate() error {
 	flagName := flag.String("name", "", "название папки проекта")
 	flagConfig := flag.String("config", "", "project.yaml (без мастера)")
 	flagQuick := flag.Bool("quick", false, "быстрый режим без мастера")
-	flagPreset := flag.String("preset", "", "шаблон project.yaml для -quick (food-delivery, conferences)")
+	flagPreset := flag.String("preset", "", "шаблон: food-delivery, conferences (с -name = без мастера)")
 	flagTheme := flag.String("theme", "", "устар.: то же что -preset для conferences")
 	flagThemeFile := flag.String("theme-file", "", "theme.yaml для -quick (legacy)")
 	flag.Parse()
@@ -98,6 +99,8 @@ func runGenerate() error {
 	var schema config.ProjectSchema
 	var err error
 
+	quick := *flagQuick || (strings.TrimSpace(*flagName) != "" && strings.TrimSpace(*flagPreset) != "")
+
 	switch {
 	case *flagConfig != "":
 		schema, err = config.LoadFile(*flagConfig)
@@ -105,41 +108,11 @@ func runGenerate() error {
 			schema.ProjectName = *flagName
 			schema.ProjectSlug = config.ModuleSlug(*flagName)
 		}
-	case *flagQuick:
-		if *flagName == "" {
-			return fmt.Errorf("укажите -name для быстрого режима")
+	case quick:
+		if strings.TrimSpace(*flagName) == "" {
+			return fmt.Errorf("укажите -name (например: -name food-delivery -preset food-delivery)")
 		}
-		presetID := strings.TrimSpace(*flagPreset)
-		if presetID == "" {
-			presetID = strings.TrimSpace(*flagTheme)
-		}
-		if presetID == "" {
-			presetID = "conferences"
-		}
-		if *flagThemeFile != "" {
-			var th theme.Theme
-			th, err = theme.LoadFile(*flagThemeFile)
-			if err != nil {
-				return err
-			}
-			schema = config.FromConferencesTheme(*flagName, th)
-		} else if _, err := config.LoadBuiltinPreset(presetID); err == nil {
-			schema, err = config.LoadBuiltinPreset(presetID)
-			if err != nil {
-				return err
-			}
-			schema.ProjectName = *flagName
-			schema.ProjectSlug = config.ModuleSlug(*flagName)
-		} else if presetID == "conferences" {
-			var th theme.Theme
-			th, err = theme.LoadEmbedded("conferences")
-			if err != nil {
-				return err
-			}
-			schema = config.FromConferencesTheme(*flagName, th)
-		} else {
-			return fmt.Errorf("неизвестный шаблон %q (ekz presets)", presetID)
-		}
+		schema, err = loadQuickSchema(*flagName, *flagPreset, *flagTheme, *flagThemeFile)
 	default:
 		schema, err = wizard.Run()
 	}
@@ -173,4 +146,38 @@ func runGenerate() error {
 	fmt.Println("  backend:  cd", schema.ProjectName, "/backend && go mod tidy && go run .")
 	fmt.Println("  frontend: cd", schema.ProjectName, "/frontend && npm install && npm run dev")
 	return nil
+}
+
+func loadQuickSchema(projectName, preset, themeID, themeFile string) (config.ProjectSchema, error) {
+	presetID := strings.TrimSpace(preset)
+	if presetID == "" {
+		presetID = strings.TrimSpace(themeID)
+	}
+	if presetID == "" {
+		presetID = "conferences"
+	}
+	if strings.TrimSpace(themeFile) != "" {
+		th, err := theme.LoadFile(themeFile)
+		if err != nil {
+			return config.ProjectSchema{}, err
+		}
+		return config.FromConferencesTheme(projectName, th), nil
+	}
+	if _, err := config.LoadBuiltinPreset(presetID); err == nil {
+		schema, err := config.LoadBuiltinPreset(presetID)
+		if err != nil {
+			return config.ProjectSchema{}, err
+		}
+		schema.ProjectName = projectName
+		schema.ProjectSlug = config.ModuleSlug(projectName)
+		return schema, nil
+	}
+	if presetID == "conferences" {
+		th, err := theme.LoadEmbedded("conferences")
+		if err != nil {
+			return config.ProjectSchema{}, err
+		}
+		return config.FromConferencesTheme(projectName, th), nil
+	}
+	return config.ProjectSchema{}, fmt.Errorf("неизвестный шаблон %q (ekz presets)", presetID)
 }

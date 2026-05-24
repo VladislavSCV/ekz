@@ -1,0 +1,42 @@
+package models
+
+import "gorm.io/gorm"
+
+const (
+	StatusNew       = "{{.Theme.StatusNew}}"
+	StatusAssigned  = "{{.Theme.StatusAssigned}}"
+	StatusCompleted = "{{.Theme.StatusCompleted}}"
+)
+
+type User struct {
+	gorm.Model
+	FullName     string `json:"full_name"`
+	Phone        string `json:"phone"`
+	Email        string `json:"email"`
+	Login        string `json:"login" gorm:"uniqueIndex"`
+	PasswordHash string `json:"-"`
+	IsAdmin      bool   `json:"is_admin"`
+	Bookings     []Booking
+	Reviews      []Review
+}
+
+type Booking struct {
+	gorm.Model
+	UserID        uint   `json:"user_id"`
+	User          User   `json:"user,omitempty"`
+	RoomType      string `json:"room_type"`
+	StartDate     string `json:"start_date"`
+	PaymentMethod string `json:"payment_method"`
+	Status        string `json:"status" gorm:"default:{{.Theme.StatusNew}}"`
+	Review        *Review
+}
+
+type Review struct {
+	gorm.Model
+	UserID    uint    `json:"user_id"`
+	BookingID uint    `json:"booking_id" gorm:"uniqueIndex"`
+	User      User    `json:"user,omitempty"`
+	Booking   Booking `json:"booking,omitempty"`
+	Text      string  `json:"text"`
+	Rating    int     `json:"rating"`
+}

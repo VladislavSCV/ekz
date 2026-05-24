@@ -1,0 +1,40 @@
+# {{.ProjectName}} — {{.Portal.Name}}
+
+Сгенерировано [ekz](https://github.com/VladislavSCV/ekz). Конфигурация: `project.yaml`.
+
+> **Коммиты ДЭ:** минимум 3 фиксации (БД → UI → доработка).
+
+## Предметная область
+
+{{.Portal.Tagline}}
+
+## Таблицы БД
+
+| Таблица | Назначение |
+|---------|------------|
+| `users` | Пользователи (регистрация, админ) |
+| `{{.Main.Table}}` | {{.Main.Label}} |
+{{- if .Reviews}}
+| `reviews` | Отзывы к записям |
+{{- end}}
+
+### Поля `{{.Main.Table}}`
+
+| Столбец | Тип | Подпись |
+|---------|-----|---------|
+| id, user_id, created_at | системные | — |
+{{- range .Main.Fields}}
+| `{{.Column}}` | {{.Type}} | {{.Label}} |
+{{- end}}
+{{- if .MainHasStatus}}
+| status | string | Статус |
+{{- end}}
+
+## Запуск
+
+```bash
+cd backend && go mod tidy && go run .
+cd frontend && npm install && npm run dev
+```
+
+Админ: **{{.Admin.Login}}** / **{{.Admin.Password}}**

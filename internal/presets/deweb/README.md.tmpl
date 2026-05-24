@@ -1,0 +1,81 @@
+# {{.ProjectName}} — {{.Theme.Name}}
+
+Решение демонстрационного экзамена (**{{.Theme.ExamCode}}**, {{.Theme.ExamVariant}}).
+
+> **Коммиты:** делайте минимум **три фиксации** перед новым этапом (БД/бэкенд → UI/дизайн → доработка и анимации).
+
+## Предметная область
+
+{{.Theme.Domain}}
+
+## Стек
+
+| Слой | Технологии |
+|------|------------|
+| Backend | Go, Fiber, GORM |
+| БД | SQLite (`data/app.db`) |
+| Frontend | Vite, Vanilla JS, Bootstrap 5 |
+
+## Запуск
+
+```bash
+cd backend && go run .
+cd frontend && npm install && npm run dev
+```
+
+Администратор: **{{.Theme.Admin.Login}}** / **{{.Theme.Admin.Password}}**  
+Мобильная проверка: DevTools **390×844**.
+
+## Настройка темы
+
+Файл `theme.yaml` в корне — все подписи, статусы и списки. Для другого билета отредактируйте YAML и перегенерируйте:
+
+```bash
+ekz -name new-copy -theme-file ./theme.yaml
+```
+
+## ER-диаграмма
+
+```mermaid
+erDiagram
+    User ||--o{ Booking : creates
+    User ||--o{ Review : writes
+    Booking ||--o| Review : has
+
+    User {
+        uint id PK
+        string full_name
+        string phone
+        string email
+        string login UK
+        string password_hash
+        bool is_admin
+    }
+
+    Booking {
+        uint id PK
+        uint user_id FK
+        string room_type
+        string start_date
+        string payment_method
+        string status
+    }
+
+    Review {
+        uint id PK
+        uint user_id FK
+        uint booking_id FK
+        string text
+        int rating
+    }
+```
+
+## Статусы
+
+| Статус | Когда |
+|--------|--------|
+| {{.Theme.StatusNew}} | При создании заявки |
+| {{.Theme.StatusAssigned}} | Устанавливает администратор |
+| {{.Theme.StatusCompleted}} | Устанавливает администратор |
+
+Отзыв доступен только после смены статуса (не «{{.Theme.StatusNew}}»).

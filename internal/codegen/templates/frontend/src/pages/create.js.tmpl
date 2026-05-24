@@ -1,0 +1,55 @@
+import { api, getUser, requireAuth } from '../api.js'
+
+if (!requireAuth()) throw new Error('auth')
+const user = getUser()
+if (user?.is_admin) window.location.href = '/admin.html'
+
+const form = document.getElementById('record-form')
+const alertBox = document.getElementById('form-alert')
+
+function hint(name, msg) {
+  const el = document.getElementById(`${name}-hint`)
+  if (el) el.textContent = msg || ''
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault()
+  alertBox.classList.add('d-none')
+{{- range .Main.Fields}}
+  hint({{printf "%q" .Column}}, '')
+{{- end}}
+  const payload = {}
+{{- range .Main.Fields}}
+{{- if eq .Type "int"}}
+  payload[{{printf "%q" .Column}}] = Number(form[{{printf "%q" .Column}}].value)
+{{- else}}
+  payload[{{printf "%q" .Column}}] = form[{{printf "%q" .Column}}].value.trim()
+{{- end}}
+{{- end}}
+  let ok = true
+{{- range .Main.Fields}}{{if .Required}}
+  if (!payload[{{printf "%q" .Column}}] || (typeof payload[{{printf "%q" .Column}}] === 'string' && !payload[{{printf "%q" .Column}}])) {
+    hint({{printf "%q" .Column}}, {{printf "%q" (printf "%s: обязательно" .Label)}})
+    ok = false
+  }
+{{- end}}{{end}}
+{{- range .Main.Fields}}{{if eq .Type "date"}}
+  if (!/^\d{2}\.\d{2}\.\d{4}$/.test(payload[{{printf "%q" .Column}}])) {
+    hint({{printf "%q" .Column}}, 'Формат ДД.ММ.ГГГГ')
+    ok = false
+  }
+{{- end}}{{end}}
+  if (!ok) return
+  try {
+    await api('/records', { method: 'POST', body: JSON.stringify(payload) })
+    alertBox.textContent = 'Запись создана'
+    alertBox.className = 'alert alert-success alert-inline'
+    alertBox.classList.remove('d-none')
+    form.reset()
+    setTimeout(() => (window.location.href = '/cabinet.html'), 700)
+  } catch (err) {
+    alertBox.textContent = err.message
+    alertBox.className = 'alert alert-warning alert-inline'
+    alertBox.classList.remove('d-none')
+  }
+})

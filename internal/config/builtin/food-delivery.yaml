@@ -1,0 +1,57 @@
+# Шаблон: доставка еды (любой билет с заказами и статусами)
+project_name: food-delivery
+project_slug: fooddelivery
+portal:
+  name: "Еда.Быстро"
+  tagline: "Доставка еды на дом"
+admin:
+  login: Admin26
+  password: Demo20
+brand:
+  primary: "#e11d48"
+  dark: "#9f1239"
+  accent: "#f97316"
+main:
+  label: "Заказ"
+  code: FoodOrder
+  table: food_orders
+  fields:
+    - column: address
+      label: "Адрес доставки"
+      type: string
+      widget: text
+      required: true
+    - column: dish
+      label: "Блюдо"
+      type: enum
+      widget: select
+      required: true
+      options:
+        - value: pizza
+          label: Пицца
+        - value: sushi
+          label: Суши
+        - value: burger
+          label: Бургер
+    - column: delivery_time
+      label: "Время доставки"
+      type: date
+      widget: date
+      required: true
+    - column: total
+      label: "Сумма, ₽"
+      type: int
+      widget: number
+      required: true
+  statuses:
+    - "Новый"
+    - "Готовится"
+    - "Доставлен"
+reviews: true
+pages:
+  login: true
+  register: true
+  create_form: true
+  cabinet: true
+  admin: true
+  slider: true

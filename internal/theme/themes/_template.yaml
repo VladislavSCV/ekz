@@ -1,0 +1,51 @@
+# Шаблон темы для экзамена — скопируйте и отредактируйте за 5–10 минут
+# Запуск: ekz -name my-project -theme-file ./my-theme.yaml
+
+id: my-portal
+name: "Название портала"
+tagline: "Краткое описание для шапки сайта"
+exam_variant: "Вариант №?"
+exam_code: "09.02.07"
+domain_description: |
+  Опишите предметную область из билета (2–4 предложения).
+  Этот текст попадёт в README.
+
+brand:
+  primary: "#1a5fb4"
+  dark: "#0d3d7a"
+  accent: "#ff6b35"
+
+admin:
+  login: Admin26
+  password: Demo20
+
+labels:
+  booking_singular: "Заявка"
+  booking_plural: "Мои заявки"
+  option_field: "Тип услуги"
+  date_field: "Дата"
+  payment_field: "Способ оплаты"
+  date_placeholder: "01.06.2026"
+  slider_subtitle: "Подзаголовок на слайдере"
+
+# Три статуса — как в типовом билете ДЭ
+status_new: "Новая"
+status_assigned: "В работе"
+status_completed: "Завершено"
+
+# Варианты выпадающего списка (value — в БД, label — на экране)
+options:
+  - value: вариант1
+    label: Вариант 1
+  - value: вариант2
+    label: Вариант 2
+  - value: вариант3
+    label: Вариант 3
+
+payments:
+  - value: наличные
+    label: Наличные
+  - value: банковская карта
+    label: Банковская карта
+  - value: безналичный расчёт
+    label: Безналичный расчёт

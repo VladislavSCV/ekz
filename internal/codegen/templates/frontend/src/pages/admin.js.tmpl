@@ -1,0 +1,62 @@
+import { api, clearSession, getUser, requireAuth } from '../api.js'
+import { ALL_STATUSES } from '../theme-config.js'
+
+if (!requireAuth()) throw new Error('auth')
+if (!getUser()?.is_admin) location.href = '/cabinet.html'
+document.getElementById('logout-btn').onclick = () => { clearSession(); location.href = '/index.html' }
+
+const tableEl = document.getElementById('admin-table')
+const paginationEl = document.getElementById('pagination')
+const toast = bootstrap.Toast.getOrCreateInstance(document.getElementById('status-toast'))
+let state = { page: 1, limit: 5 }
+
+function statusOptions(sel) {
+  return ALL_STATUSES.map((s) => `<option value="${s}" ${s === sel ? 'selected' : ''}>${s}</option>`).join('')
+}
+
+async function load() {
+  const q = new URLSearchParams({
+    page: state.page, limit: state.limit,
+    status: document.getElementById('filter-status').value,
+    sort: document.getElementById('sort-field').value,
+    dir: document.getElementById('sort-desc').checked ? 'DESC' : 'ASC',
+  })
+  const data = await api(`/admin/records?${q}`)
+  render(data.items)
+  renderPages(data.page, data.pages)
+}
+
+function render(items) {
+  if (!items.length) { tableEl.innerHTML = '<p class="text-muted small">Нет записей</p>'; return }
+  tableEl.innerHTML = `<table class="table table-sm"><thead><tr><th>ID</th><th>Пользователь</th>
+{{- range .Main.Fields}}<th>{{.Label}}</th>{{end}}
+<th>Статус</th><th></th></tr></thead><tbody>${items.map((r) => `
+<tr><td>${r.ID}</td><td>${r.User?.full_name || ''}</td>
+{{- range .Main.Fields}}
+<td>${r.{{.Column}} ?? ''}</td>
+{{- end}}
+<td><span class="status-badge">${r.status}</span></td>
+<td><select class="form-select form-select-sm" data-id="${r.ID}">${statusOptions(r.status)}</select></td>
+</tr>`).join('')}</tbody></table>`
+  tableEl.querySelectorAll('select[data-id]').forEach((sel) => {
+    sel.onchange = async () => {
+      await api(`/admin/records/${sel.dataset.id}/status`, { method: 'PATCH', body: JSON.stringify({ status: sel.value }) })
+      toast.show()
+      load()
+    }
+  })
+}
+
+function renderPages(page, pages) {
+  if (pages <= 1) { paginationEl.innerHTML = ''; return }
+  paginationEl.innerHTML = Array.from({ length: pages }, (_, i) => i + 1)
+    .map((p) => `<li class="page-item ${p === page ? 'active' : ''}"><a class="page-link" href="#" data-p="${p}">${p}</a></li>`).join('')
+  paginationEl.querySelectorAll('[data-p]').forEach((a) => {
+    a.onclick = (e) => { e.preventDefault(); state.page = Number(a.dataset.p); load() }
+  })
+}
+
+;['filter-status', 'sort-field', 'sort-desc'].forEach((id) => {
+  document.getElementById(id).onchange = () => { state.page = 1; load() }
+})
+load()

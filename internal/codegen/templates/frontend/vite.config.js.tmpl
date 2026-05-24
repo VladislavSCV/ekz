@@ -1,0 +1,30 @@
+import { resolve } from 'path'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  server: {
+    port: 5173,
+    proxy: { '/api': { target: 'http://localhost:8080', changeOrigin: true } },
+  },
+  build: {
+    rollupOptions: {
+      input: {
+{{- if .Pages.Login}}
+        main: resolve(__dirname, 'index.html'),
+{{- end}}
+{{- if .Pages.Register}}
+        register: resolve(__dirname, 'register.html'),
+{{- end}}
+{{- if .Pages.CreateForm}}
+        create: resolve(__dirname, 'create.html'),
+{{- end}}
+{{- if .Pages.Cabinet}}
+        cabinet: resolve(__dirname, 'cabinet.html'),
+{{- end}}
+{{- if .Pages.Admin}}
+        admin: resolve(__dirname, 'admin.html'),
+{{- end}}
+      },
+    },
+  },
+})

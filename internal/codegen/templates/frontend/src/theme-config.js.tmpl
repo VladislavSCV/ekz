@@ -1,0 +1,6 @@
+export const PORTAL_NAME = {{printf "%q" .Portal.Name}}
+export const ENTITY_LABEL = {{printf "%q" .Main.Label}}
+{{- if .MainHasStatus}}
+export const STATUS_NEW = {{printf "%q" .StatusNew}}
+export const ALL_STATUSES = [{{range $i, $s := .Main.Statuses}}{{if $i}}, {{end}}{{printf "%q" $s}}{{end}}]
+{{- end}}

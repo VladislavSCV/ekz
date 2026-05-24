@@ -11,21 +11,29 @@ import (
 	"text/template"
 
 	"github.com/VladislavSCV/ekz/internal/presets"
+	"github.com/VladislavSCV/ekz/internal/theme"
+	"gopkg.in/yaml.v3"
 )
 
-type fileData struct {
+type TemplateData struct {
 	ProjectName string
 	ProjectSlug string
+	Theme       theme.Theme
 }
 
-func Generate(p presets.Preset, targetDir, projectName string) error {
+func Generate(p presets.Preset, targetDir, projectName string, th theme.Theme) error {
 	if err := os.MkdirAll(targetDir, 0o755); err != nil {
 		return err
 	}
 
-	data := fileData{
+	data := TemplateData{
 		ProjectName: projectName,
 		ProjectSlug: slug(projectName),
+		Theme:       th,
+	}
+
+	if err := writeThemeCopy(targetDir, th); err != nil {
+		return err
 	}
 
 	root := p.Root
@@ -57,7 +65,10 @@ func Generate(p presets.Preset, targetDir, projectName string) error {
 		}
 
 		if strings.HasSuffix(path, ".tmpl") {
-			tmpl, err := template.New(filepath.Base(path)).Parse(string(content))
+			funcMap := template.FuncMap{
+				"lower": strings.ToLower,
+			}
+			tmpl, err := template.New(filepath.Base(path)).Funcs(funcMap).Parse(string(content))
 			if err != nil {
 				return fmt.Errorf("шаблон %s: %w", path, err)
 			}
@@ -81,6 +92,17 @@ func Generate(p presets.Preset, targetDir, projectName string) error {
 		fmt.Fprintf(os.Stderr, "предупреждение: %v\n", err)
 	}
 	return nil
+}
+
+func writeThemeCopy(targetDir string, th theme.Theme) error {
+	var buf bytes.Buffer
+	enc := yaml.NewEncoder(&buf)
+	enc.SetIndent(2)
+	if err := enc.Encode(&th); err != nil {
+		return err
+	}
+	_ = enc.Close()
+	return os.WriteFile(filepath.Join(targetDir, "theme.yaml"), buf.Bytes(), 0o644)
 }
 
 func slug(name string) string {

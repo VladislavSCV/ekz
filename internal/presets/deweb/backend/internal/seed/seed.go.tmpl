@@ -1,0 +1,32 @@
+package seed
+
+import (
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+
+	"{{.ProjectSlug}}/backend/internal/models"
+)
+
+func Run(db *gorm.DB) error {
+	adminLogin := "{{.Theme.Admin.Login}}"
+	var count int64
+	if err := db.Model(&models.User{}).Where("login = ?", adminLogin).Count(&count).Error; err != nil {
+		return err
+	}
+	if count > 0 {
+		return nil
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte("{{.Theme.Admin.Password}}"), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	admin := models.User{
+		FullName:     "Администратор",
+		Phone:        "+70000000000",
+		Email:        "admin@{{.ProjectSlug}}.local",
+		Login:        adminLogin,
+		PasswordHash: string(hash),
+		IsAdmin:      true,
+	}
+	return db.Create(&admin).Error
+}

@@ -1,0 +1,59 @@
+# Шаблон: Конференции.РФ (билет 2026, вариант 2)
+project_name: conferences
+project_slug: conferences
+portal:
+  name: "Конференции.РФ"
+  tagline: "Бронирование помещений для Всероссийских конференций"
+admin:
+  login: Admin26
+  password: Demo20
+brand:
+  primary: "#1a5fb4"
+  dark: "#0d3d7a"
+  accent: "#ff6b35"
+main:
+  label: "Заявка"
+  code: Booking
+  table: bookings
+  fields:
+    - column: room_type
+      label: "Тип помещения"
+      type: enum
+      widget: select
+      required: true
+      options:
+        - value: аудитория
+          label: Аудитория
+        - value: коворкинг
+          label: Коворкинг
+        - value: кинозал
+          label: Кинозал
+    - column: start_date
+      label: "Дата начала конференции"
+      type: date
+      widget: date
+      required: true
+    - column: payment_method
+      label: "Способ оплаты"
+      type: enum
+      widget: select
+      required: true
+      options:
+        - value: наличные
+          label: Наличные
+        - value: банковская карта
+          label: Банковская карта
+        - value: безналичный расчёт
+          label: Безналичный расчёт
+  statuses:
+    - "Новая"
+    - "Мероприятие назначено"
+    - "Мероприятие завершено"
+reviews: true
+pages:
+  login: true
+  register: true
+  create_form: true
+  cabinet: true
+  admin: true
+  slider: true

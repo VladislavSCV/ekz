@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>{{.Portal.Name}} — {{.Main.Label}}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="brand-header"><h1>{{.Main.Label}}</h1><p>{{.Portal.Tagline}}</p></header>
+    <div class="card-panel">
+      <div id="form-alert" class="alert alert-inline d-none"></div>
+      <form id="record-form">
+{{- range .Main.Fields}}
+        <div class="mb-3">
+          <label class="form-label">{{.Label}}</label>
+{{- if eq .Widget "select"}}
+          <select class="form-select" name="{{.Column}}" {{if .Required}}required{{end}}>
+            <option value="">Выберите...</option>
+{{- range .Options}}
+            <option value="{{.Value}}">{{.Label}}</option>
+{{- end}}
+          </select>
+{{- else if eq .Widget "textarea"}}
+          <textarea class="form-control" name="{{.Column}}" rows="3" {{if .Required}}required{{end}}></textarea>
+{{- else if eq .Widget "number"}}
+          <input class="form-control" name="{{.Column}}" type="number" {{if .Required}}required{{end}} />
+{{- else if eq .Widget "date"}}
+          <input class="form-control" name="{{.Column}}" placeholder="ДД.ММ.ГГГГ" pattern="\d{2}\.\d{2}\.\d{4}" {{if .Required}}required{{end}} />
+{{- else}}
+          <input class="form-control" name="{{.Column}}" {{if .Required}}required{{end}} />
+{{- end}}
+          <div id="{{.Column}}-hint" class="form-hint"></div>
+        </div>
+{{- end}}
+        <button type="submit" class="btn btn-brand">Отправить</button>
+      </form>
+{{- if .Pages.Cabinet}}
+      <a class="nav-link-soft" href="/cabinet.html">Личный кабинет</a>
+{{- end}}
+    </div>
+  </div>
+  <script type="module" src="/src/pages/create.js"></script>
+</body>
+</html>

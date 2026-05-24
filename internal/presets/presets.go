@@ -2,24 +2,25 @@ package presets
 
 import "embed"
 
+// Preset — технический каркас (Go + Vite). Предметная область задаётся theme YAML.
 type Preset struct {
 	ID       string
 	Name     string
 	Label    string
 	Template embed.FS
-	Root     string // subdirectory inside embed FS
+	Root     string
 }
 
-//go:embed conferences/*
-var conferencesFS embed.FS
+//go:embed deweb/*
+var dewebFS embed.FS
 
 var registry = []Preset{
 	{
-		ID:       "conferences",
-		Name:     "Конференции.РФ",
-		Label:    "Конференции.РФ (Вариант №2)",
-		Template: conferencesFS,
-		Root:     "conferences",
+		ID:       "de",
+		Name:     "Универсальный шаблон ДЭ",
+		Label:    "Веб-приложение 09.02.07 (настраивается темой YAML)",
+		Template: dewebFS,
+		Root:     "deweb",
 	},
 }
 
@@ -30,6 +31,10 @@ func List() []Preset {
 }
 
 func ByID(id string) (Preset, bool) {
+	// Обратная совместимость: старый -preset conferences
+	if id == "conferences" {
+		id = "de"
+	}
 	for _, p := range registry {
 		if p.ID == id {
 			return p, true

@@ -2,7 +2,11 @@ module github.com/VladislavSCV/ekz
 
 go 1.22
 
-require github.com/AlecAivazis/survey/v2 v2.3.7
+require (
+	github.com/AlecAivazis/survey/v2 v2.3.7
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	gopkg.in/yaml.v3 v3.0.1
+)
 
 require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect

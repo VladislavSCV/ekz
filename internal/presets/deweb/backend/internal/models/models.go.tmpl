@@ -28,7 +28,7 @@ type Booking struct {
 	StartDate     string `json:"start_date"`
 	PaymentMethod string `json:"payment_method"`
 	Status        string `json:"status" gorm:"default:{{.Theme.StatusNew}}"`
-	Review        *Review
+	Review        *Review `json:"review,omitempty" gorm:"foreignKey:BookingID;references:ID"`
 }
 
 type Review struct {

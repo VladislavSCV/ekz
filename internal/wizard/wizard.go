@@ -18,7 +18,8 @@ func Run() (config.ProjectSchema, error) {
 	fmt.Println("\n─── Как собрать проект? ───")
 	fmt.Println("На экзамене почти всегда: users + одна бизнес-таблица + опционально отзывы.")
 	fmt.Println("Вы задаёте столбцы и страницы — ekz генерирует БД, API и фронт из project.yaml.")
-	fmt.Println("Управление: ↑↓ и Enter (как в меню).\n")
+	fmt.Println("Управление: ↑↓ и Enter (как в меню).")
+	fmt.Println()
 
 	opts := []string{
 		"Свой билет с нуля (любая тема: доставка, отель, курсы…)",

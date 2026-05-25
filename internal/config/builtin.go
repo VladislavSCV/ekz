@@ -45,6 +45,9 @@ func LoadBuiltinPreset(id string) (ProjectSchema, error) {
 	if err := yaml.Unmarshal(data, &p); err != nil {
 		return ProjectSchema{}, err
 	}
+	if err := p.Validate(); err != nil {
+		return ProjectSchema{}, err
+	}
 	return p, nil
 }
 

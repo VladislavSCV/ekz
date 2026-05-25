@@ -27,7 +27,7 @@ type {{.Main.Code}} struct {
 	Status string `json:"status"`
 {{- end}}
 {{- if .Reviews}}
-	Review *Review `json:"Review,omitempty"`
+	Review *Review `json:"review,omitempty" gorm:"foreignKey:RecordID;references:ID"`
 {{- end}}
 }
 

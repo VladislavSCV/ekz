@@ -203,6 +203,6 @@ ekz -name conferences2026 -preset conferences
 
 ```bash
 git clone https://github.com/VladislavSCV/ekz.git
-cd ekz && go build -o ekz .
-./ekz help
+cd ekz && go build -o ekz.exe .
+./ekz.exe help
 ```
